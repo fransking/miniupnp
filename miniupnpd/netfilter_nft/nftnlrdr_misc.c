@@ -628,7 +628,7 @@ int
 refresh_nft_cache_filter(void)
 {
 	if (rule_list_filter_validate != RULE_CACHE_VALID) {
-		if (refresh_nft_cache(&head_filter, nft_table, nft_forward_chain, NFPROTO_INET, RULE_FILTER) < 0)
+		if (refresh_nft_cache(&head_filter, nft_table, nft_forward_chain, NFPROTO_IPV4, RULE_FILTER) < 0)
 			return -1;
 		rule_list_filter_validate = RULE_CACHE_VALID;
 	}
@@ -639,7 +639,7 @@ int
 refresh_nft_cache_peer(void)
 {
 	if (rule_list_peer_validate != RULE_CACHE_VALID) {
-		if (refresh_nft_cache(&head_peer, nft_nat_table, nft_postrouting_chain, NFPROTO_INET, RULE_NAT) < 0)
+		if (refresh_nft_cache(&head_peer, nft_nat_table, nft_postrouting_chain, NFPROTO_IPV4, RULE_NAT) < 0)
 			return -1;
 		rule_list_peer_validate = RULE_CACHE_VALID;
 	}
@@ -650,7 +650,7 @@ int
 refresh_nft_cache_redirect(void)
 {
 	if (rule_list_redirect_validate != RULE_CACHE_VALID) {
-		if (refresh_nft_cache(&head_redirect, nft_nat_table, nft_prerouting_chain, NFPROTO_INET, RULE_NAT) < 0)
+		if (refresh_nft_cache(&head_redirect, nft_nat_table, nft_prerouting_chain, NFPROTO_IPV4, RULE_NAT) < 0)
 			return -1;
 		rule_list_redirect_validate = RULE_CACHE_VALID;
 	}
@@ -1164,15 +1164,9 @@ rule_del_handle(rule_t *rule)
 		return NULL;
 	}
 
-	if (rule->type == RULE_NAT) {
-		// NAT Family is not chain/rule family
-		nftnl_rule_set_u32(r, NFTNL_RULE_FAMILY, NFPROTO_INET);
-	} else {
-		nftnl_rule_set_u32(r, NFTNL_RULE_FAMILY, rule->family);
-	}
-
 	nftnl_rule_set_str(r, NFTNL_RULE_TABLE, rule->table);
 	nftnl_rule_set_str(r, NFTNL_RULE_CHAIN, rule->chain);
+	nftnl_rule_set_u32(r, NFTNL_RULE_FAMILY, rule->family);
 	nftnl_rule_set_u64(r, NFTNL_RULE_HANDLE, rule->handle);
 
 	return r;
